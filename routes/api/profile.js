@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const passport = require('passport');
 const router = express.Router();
 
+//Load profile validator
+const validateProfileInput = require('../../validations/profile');
 //Load profile model
 const Profile = require('../../models/Profile');
 //Load User model
@@ -17,6 +19,7 @@ router.get('/test', (req,res)=>{res.json({message: "Profile works"})});
 router.get('/', passport.authenticate('jwt', { session: false}), (req,res)=>{
     let errors = {}
     Profile.findOne({user: req.user.id})
+    .populate('user',['name','avatar'])
     .then( profile =>{
         errors.noProfile = 'There is no Profile for this user'
         if(!profile){
@@ -35,7 +38,13 @@ router.get('/', passport.authenticate('jwt', { session: false}), (req,res)=>{
 //create or edit profile
 
 router.post('/', passport.authenticate('jwt', { session: false}), (req,res)=>{
-    let errors = {}
+  
+    const { errors , isValid } = validateProfileInput(req.body);
+    if(!isValid){
+        return res.status(400).json(errors);
+    }
+
+
     const profileFields = {};
     profileFields.user = req.user.id;
     if(req.body.handle) profileFields.handle = req.body.handle;
@@ -56,14 +65,22 @@ router.post('/', passport.authenticate('jwt', { session: false}), (req,res)=>{
     if(req.body.linkdin) profileFields.social.linkdin = req.body.linkdin;
     if(req.body.instagram) profileFields.instagram = req.body.instagram;
 
+    
     Profile.findOne({ user: req.user.id })
     .then(profile =>{
+       
         if(profile){
             //Update
-            Profile.findByIdAndUpdate(
+            
+            
+            Profile.findOneAndUpdate(
                 { user: req.user.id },
                 { $set: profileFields },
-                { new: true }).then(profile => res.json(profile))
+                { new: true })
+                .then(profile => res.json(profile))
+                .catch(err =>{
+                    return res.status(400).json(err)
+                })
         }
         else{
             //Create
@@ -79,6 +96,10 @@ router.post('/', passport.authenticate('jwt', { session: false}), (req,res)=>{
                 }
             })
         }
+    })
+    .catch(err =>{
+        
+        res.status(400).json(err)
     })
 
 })
