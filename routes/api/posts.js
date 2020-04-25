@@ -110,13 +110,59 @@ router.post('/', passport.authenticate('jwt', { session: false}), (req,res) =>{
 
     const newPost = new Post({
         text: req.body.text,
-        name: req.body.name,
+        avatar: req.body.name,
         avatar: req.body.name,
         user: req.user.id
     })
 
     newPost.save().then(post => res.json(post))
 })
+
+//@route    POST api/posts/comment/:id
+//@desc     Add comment to post
+//@access   Private
+
+router.post('/comment/:id', passport.authenticate('jwt', { session: false}), (req, res) =>{
+  Post.findById(req.params.id)
+        .then(post =>{
+            const newComment = {
+                text: req.body.text,
+                name: req.body.name,
+                avatar: req.body.avatar
+            }
+            //Add to comment array
+            post.comments.push(newComment);
+
+            post.save().then(post => res.json(post))
+        })
+        .catch(err => res.status(404).json(err))
+})
+
+
+//@route    DELETE api/posts/comment/:id/:comment_id
+//@desc     remove comment from post
+//@access   Private
+
+router.delete('/comment/:id/:comment_id', passport.authenticate('jwt', { session: false}), (req, res) =>{
+   Post.findById(req.params.id)
+        .then(post =>{
+            //check if the comment exist
+            if(post.comments.filter(comment => comment._id.toString() === req.params.comment_id).length ===0){
+                return res.status(404).json({ commentnotexists: 'Comment does not exist'});
+            }
+
+            //Remove index
+            const removeIndex =post.comments
+                                .map(item => item._id.toString())
+                                .indexOf(req.params.comment_id);
+            
+            post.comments.splice(removeIndex,1);
+
+            post.save().then(post => res.json(post));
+        })
+        .catch(err => res.status(404).json(err))
+})
+
 
 
 module.exports = router;
