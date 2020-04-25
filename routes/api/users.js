@@ -20,6 +20,7 @@ router.get('/test', (req,res)=>{res.json({message: "users works"})});
 //register user route
 router.post('/register',(req,res)=>{
     const { errors, isValid } = validateRegisterInput(req.body);
+
     // if(!isValid){
     //     return res.status(400).json(errors);
     // }
@@ -65,7 +66,7 @@ router.post('/login', (req,res)=>{
     // if(!isValid){
     //     return res.status(400).json(errors);
     // }
-    
+ 
     User.findOne({email})
         .then( user =>{
             if(!user){
