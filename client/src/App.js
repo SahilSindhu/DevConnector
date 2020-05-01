@@ -1,26 +1,30 @@
-import React, { Fragment } from 'react';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'; 
-import Navbar from '../src/components/layout/Navbar';
-import Landing from '../src/components/layout/Landing';
-import Login from '../src/components/auth/Login';
-import Register from '../src/components/auth/Register';
+import React, { Fragment } from "react";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import Navbar from "../src/components/layout/Navbar";
+import Landing from "../src/components/layout/Landing";
+import Login from "../src/components/auth/Login";
+import Register from "../src/components/auth/Register";
 
-import './App.css';
+import "./App.css";
 
+import { Provider } from "react-redux";
+import store from "./store";
 function App() {
   return (
-    <Router>
-      <Fragment>
-        <Navbar />
-        <Route exact path='/' component= { Landing } />
-        <section className='container'>
-          <Switch>
-            <Route exact path='/login' component={ Login }/>
-            <Route exact path='/register' component={ Register }/>
-          </Switch>
-        </section>
-      </Fragment>
-    </Router>
+    <Provider store={store}>
+      <Router>
+        <Fragment>
+          <Navbar />
+          <Route exact path="/" component={Landing} />
+          <section className="container">
+            <Switch>
+              <Route exact path="/login" component={Login} />
+              <Route exact path="/register" component={Register} />
+            </Switch>
+          </section>
+        </Fragment>
+      </Router>
+    </Provider>
   );
 }
 
