@@ -1,11 +1,13 @@
 import React, { Fragment, useState } from "react";
 import { Link } from "react-router-dom";
-export default function Login() {
+import { connect } from "react-redux";
+import { setAlert } from "../../actions/alert";
+import { login } from "../../actions/auth";
+
+function Login(props) {
   const [formData, setFormData] = useState({
-    name: "",
     email: "",
     password: "",
-    password2: "",
   });
 
   const { email, password } = formData;
@@ -14,6 +16,7 @@ export default function Login() {
 
   const onSubmit = async (e) => {
     e.preventDefault();
+    props.login({ email, password });
     console.log("success");
   };
   return (
@@ -39,7 +42,7 @@ export default function Login() {
               type="password"
               placeholder="Password"
               name="password"
-              minLength="6"
+              minLength="5"
               value={password}
               onChange={(e) => onChange(e)}
             />
@@ -54,3 +57,5 @@ export default function Login() {
     </Fragment>
   );
 }
+
+export default connect(null, { setAlert, login })(Login);
